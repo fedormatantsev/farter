@@ -1,0 +1,15 @@
+x_definition:
+  - ticker: NVDA
+    indicator: RSI
+  - ticker: NVDA
+    indicator: MACD
+
+y_definition:
+  ticker: NVDA
+  strategy: default
+
+training_data:
+  resolution: 30m
+  first_date: isotime
+  last_date: isotime
+  test_days: 10
