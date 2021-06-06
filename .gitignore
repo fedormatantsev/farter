@@ -1,2 +1,5 @@
 /venv
 /.idea
+/scripts/generated
+/ml/notebooks/.ipynb_checkpoints
+ml/data/auth_token.yaml
