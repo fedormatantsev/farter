@@ -66,7 +66,7 @@ class ModelConfig:
 class ConfigLoader:
     def __init__(self):
         script_path = os.path.abspath(os.path.dirname(__file__))
-        config_dir = os.path.join(script_path, '..', 'data', 'config')
+        config_dir = os.path.join(script_path, '..', '..', 'data', 'config')
         self.config_dir = os.path.normpath(config_dir)
 
     def load(self, config_name: str) -> ModelConfig:

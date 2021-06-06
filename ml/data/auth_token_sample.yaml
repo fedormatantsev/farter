@@ -1,0 +1,4 @@
+# Copy this file and rename to auth_token.yaml
+# Insert auth tokens from tinkoff website for sandbox and production environments
+sandbox: xxxxxxx
+production: xxxxxxx
