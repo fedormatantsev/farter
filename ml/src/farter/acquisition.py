@@ -33,7 +33,9 @@ class CandleDataFetcher:
         for input_config in config.raw_input:
             csv_path = input_config.get_file_path()
             if os.path.exists(csv_path):
-                res.append(pd.read_csv(csv_path))
+                df = pd.read_csv(csv_path)
+                df['t'] = pd.to_datetime(df['t'], utc=True)
+                res.append(df)
                 continue
 
             resp = self.market_api.market_search_by_ticker_get(ticker=input_config.ticker)
@@ -47,7 +49,7 @@ class CandleDataFetcher:
                                              last_date=input_config.last_date, resolution=resolution)
 
             df = pd.DataFrame(data)
-            df.to_csv(input_config.get_file_path())
+            df.to_csv(input_config.get_file_path(), index=False)
             res.append(df)
 
         return res
