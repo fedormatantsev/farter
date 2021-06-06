@@ -6,6 +6,10 @@ import yaml
 import enum
 import os
 
+SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
+DATA_PATH = os.path.join(SCRIPT_PATH, '..', '..', 'data')
+RAW_DATA_PATH = os.path.join(DATA_PATH, 'raw')
+
 
 class CandleResolution(enum.Enum):
     ONE_MINUTE = 0
@@ -23,7 +27,7 @@ class RawInputConfig:
     first_date: datetime.date
     last_date: datetime.date
 
-    def get_file_name(self) -> str:
+    def get_file_path(self) -> str:
         sha = hashlib.sha256()
         sha.update(bytes(self.ticker, encoding='UTF8'))
         sha.update(bytes(self.resolution.name, encoding='UTF8'))
@@ -31,7 +35,7 @@ class RawInputConfig:
         sha.update(bytes(self.last_date.isoformat(), encoding='UTF8'))
         h = sha.hexdigest()
 
-        return str(h) + '.csv'
+        return os.path.join(RAW_DATA_PATH, f'{str(h)}.csv')
 
 
 @dataclasses.dataclass
@@ -65,8 +69,7 @@ class ModelConfig:
 
 class ConfigLoader:
     def __init__(self):
-        script_path = os.path.abspath(os.path.dirname(__file__))
-        config_dir = os.path.join(script_path, '..', '..', 'data', 'config')
+        config_dir = os.path.join(DATA_PATH, 'config')
         self.config_dir = os.path.normpath(config_dir)
 
     def load(self, config_name: str) -> ModelConfig:
