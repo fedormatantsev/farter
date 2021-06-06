@@ -9,7 +9,7 @@ y_definition:
   strategy: default
 
 training_data:
-  resolution: 30m
-  first_date: isotime
-  last_date: isotime
+  resolution: THIRTY_MINUTES
+  first_date: '2021-01-01'
+  last_date: '2021-02-01'
   test_days: 10

@@ -69,7 +69,7 @@ class ConfigLoader:
         config_dir = os.path.join(script_path, '..', 'data', 'config')
         self.config_dir = os.path.normpath(config_dir)
 
-    def load_config(self, config_name: str) -> ModelConfig:
+    def load(self, config_name: str) -> ModelConfig:
         config_path = os.path.join(self.config_dir, f'{config_name}.yaml')
 
         with open(config_path, 'r') as config_file:
