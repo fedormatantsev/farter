@@ -53,7 +53,7 @@ mod tests {
     use crate::indicators::Eval;
 
     #[test]
-    fn test_next() -> Result<(), ()> {
+    fn test_eval() -> Result<(), ()> {
         let mut sma = SimpleMovingAverage::new(2)?;
         let test_data = [0f64, 2f64, 4f64, 6f64, 8f64];
         let mut out_data: [Option<f64>; 5] = [None; 5];

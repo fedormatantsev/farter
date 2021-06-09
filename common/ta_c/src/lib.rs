@@ -1,14 +1,16 @@
 use std::ffi::c_void;
-use ta::indicators::{Eval, SimpleMovingAverage};
+use ta::indicators::{Eval, ExponentialMovingAverage, SimpleMovingAverage};
 
 pub enum Indicator {
     SimpleMovingAverage(SimpleMovingAverage),
+    ExponentialMovingAverage(ExponentialMovingAverage),
 }
 
 impl Eval for Indicator {
     fn eval(&mut self, value: f64) -> Option<f64> {
         match self {
             Indicator::SimpleMovingAverage(sma) => sma.eval(value),
+            Indicator::ExponentialMovingAverage(ema) => ema.eval(value),
         }
     }
 }
@@ -19,6 +21,18 @@ pub extern "C" fn create_simple_moving_average(period: usize) -> *mut c_void {
         Err(_) => std::ptr::null_mut(),
         Ok(sma) => {
             let indicator = Box::new(Indicator::SimpleMovingAverage(sma));
+            let res = Box::leak(indicator);
+            res as *mut _ as *mut c_void
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn create_exponential_moving_average(period: usize) -> *mut c_void {
+    match ExponentialMovingAverage::new(period) {
+        Err(_) => std::ptr::null_mut(),
+        Ok(ema) => {
+            let indicator = Box::new(Indicator::ExponentialMovingAverage(ema));
             let res = Box::leak(indicator);
             res as *mut _ as *mut c_void
         }
@@ -39,9 +53,9 @@ pub extern "C" fn destroy_indicator(ptr: *mut c_void) {
 
 #[repr(C)]
 pub enum EvalResult {
-    Ok,   // Evaluation is successful, output value was written.
+    Ok,       // Evaluation is successful, output value was written.
     NotReady, // Evaluation is successful, but there is no output value available.
-    Error,  // Error during evaluation.
+    Error,    // Error during evaluation.
 }
 
 #[no_mangle]
