@@ -14,6 +14,9 @@ libta.create_simple_moving_average.restype = ctypes.c_void_p
 libta.create_exponential_moving_average.argtypes = [ctypes.c_uint64]
 libta.create_exponential_moving_average.restype = ctypes.c_void_p
 
+libta.create_relative_strength_index.argtypes = [ctypes.c_uint64]
+libta.create_relative_strength_index.restype = ctypes.c_void_p
+
 libta.eval_indicator.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.POINTER(ctypes.c_double)]
 libta.eval_indicator.restype = ctypes.c_int
 
@@ -60,6 +63,23 @@ def create_exponential_moving_average(args):
     return inst
 
 
+def create_relative_strength_index(args):
+    if 'period' not in args:
+        raise RuntimeError('RelativeStrengthIndex requires period parameter')
+
+    period = args['period']
+
+    if not isinstance(period, int):
+        raise RuntimeError(f'RelativeStrengthIndex requires period parameter of type int')
+
+    inst = libta.create_relative_strength_index(ctypes.c_uint64(period))
+
+    if not inst:
+        raise RuntimeError('Failed to create RelativeStrengthIndex instance')
+
+    return inst
+
+
 class Indicator:
     def __init__(self, indicator_type: str, **kwargs):
         self._libta = libta
@@ -68,6 +88,8 @@ class Indicator:
             self._inst = create_simple_moving_average(kwargs)
         elif indicator_type == 'ExponentialMovingAverage':
             self._inst = create_exponential_moving_average(kwargs)
+        elif indicator_type == 'RelativeStrengthIndex':
+            self._inst = create_relative_strength_index(kwargs)
         else:
             raise RuntimeError(f'Unknown indicator type: {indicator_type}')
 

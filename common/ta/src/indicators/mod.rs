@@ -1,4 +1,5 @@
 mod exponential_moving_average;
+mod relative_strength_index;
 mod simple_moving_average;
 
 pub trait Eval {
@@ -6,4 +7,5 @@ pub trait Eval {
 }
 
 pub use exponential_moving_average::ExponentialMovingAverage;
+pub use relative_strength_index::RelativeStrengthIndex;
 pub use simple_moving_average::SimpleMovingAverage;

@@ -33,6 +33,7 @@ def load_tinkoff_api_spec():
 
 
 def gen_tinkoff_client():
+    os.mkdir(TINKOFF_CLIENT_PATH)
     subprocess.call(
         f'swagger-codegen generate -l python '
         f'-i {API_FILE_PATH} -o {TINKOFF_CLIENT_PATH} '
