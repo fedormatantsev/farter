@@ -36,8 +36,12 @@ impl RelativeStrengthIndex {
 
         let res = match (up, down) {
             (Some(up), Some(down)) => {
-                let rs = up / down;
-                Some(1f64 - 1f64 / (1f64 + rs))
+                if down == 0.0f64 {
+                    Some(1.0f64)
+                } else {
+                    let rs = up / down;
+                    Some(1f64 - 1f64 / (1f64 + rs))
+                }
             }
             (None, None) => None,
             _ => {
