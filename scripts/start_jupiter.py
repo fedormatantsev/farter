@@ -5,6 +5,7 @@ import sys
 PROJECT_ROOT = os.path.normpath(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 ML_PATH = os.path.join(PROJECT_ROOT, 'ml')
 ML_SRC_PATH = os.path.join(ML_PATH, 'src')
+COMMON_SRC_PATH = os.path.join(PROJECT_ROOT, 'common')
 
 
 def check_python_executable():
@@ -20,7 +21,7 @@ def check_python_executable():
 def main():
     check_python_executable()
     python_path = os.getenv('PYTHONPATH')
-    os.putenv('PYTHONPATH', python_path + f':{ML_SRC_PATH}')
+    os.putenv('PYTHONPATH', f'{python_path or ""}:{ML_SRC_PATH}:{COMMON_SRC_PATH}')
     os.chdir(ML_PATH)
     subprocess.call('jupyter notebook'.split())
 

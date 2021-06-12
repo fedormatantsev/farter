@@ -1,9 +1,10 @@
 use std::ffi::c_void;
-use ta::indicators::{Eval, ExponentialMovingAverage, SimpleMovingAverage};
+use ta::indicators::{Eval, ExponentialMovingAverage, RelativeStrengthIndex, SimpleMovingAverage};
 
 pub enum Indicator {
     SimpleMovingAverage(SimpleMovingAverage),
     ExponentialMovingAverage(ExponentialMovingAverage),
+    RelativeStrengthIndex(RelativeStrengthIndex),
 }
 
 impl Eval for Indicator {
@@ -11,6 +12,7 @@ impl Eval for Indicator {
         match self {
             Indicator::SimpleMovingAverage(sma) => sma.eval(value),
             Indicator::ExponentialMovingAverage(ema) => ema.eval(value),
+            Indicator::RelativeStrengthIndex(rsi) => rsi.eval(value),
         }
     }
 }
@@ -29,10 +31,22 @@ pub extern "C" fn create_simple_moving_average(period: usize) -> *mut c_void {
 
 #[no_mangle]
 pub extern "C" fn create_exponential_moving_average(period: usize) -> *mut c_void {
-    match ExponentialMovingAverage::new(period) {
+    match ExponentialMovingAverage::new(period, None) {
         Err(_) => std::ptr::null_mut(),
         Ok(ema) => {
             let indicator = Box::new(Indicator::ExponentialMovingAverage(ema));
+            let res = Box::leak(indicator);
+            res as *mut _ as *mut c_void
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn create_relative_strength_index(period: usize) -> *mut c_void {
+    match RelativeStrengthIndex::new(period) {
+        Err(_) => std::ptr::null_mut(),
+        Ok(rsi) => {
+            let indicator = Box::new(Indicator::RelativeStrengthIndex(rsi));
             let res = Box::leak(indicator);
             res as *mut _ as *mut c_void
         }
