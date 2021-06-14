@@ -1,8 +1,8 @@
 x_definition:
   - ticker: NVDA
-    indicator: RSI
-  - ticker: NVDA
-    indicator: MACD
+    indicator:
+      type: RSI
+      period: 14
 
 y_definition:
   ticker: NVDA

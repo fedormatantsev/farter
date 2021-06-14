@@ -5,7 +5,7 @@ import os
 
 import tinkoff_client
 
-from farter.config import ModelConfig, CandleResolution
+from farter.model import ModelConfig, CandleResolution
 from farter.auth_token import get_sandbox_token
 
 
