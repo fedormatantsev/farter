@@ -2,6 +2,7 @@ import typing
 import ctypes
 import enum
 import os
+import pandas as pd
 
 SCRIPT_PATH = os.path.abspath(os.path.dirname(__file__))
 LIBTA_PATH = os.path.join(SCRIPT_PATH, '..', '..', 'target', 'debug', 'libta_c.dylib')
@@ -43,7 +44,9 @@ def create_simple_moving_average(args):
     if not inst:
         raise RuntimeError('Failed to create SimpleMovingAverage instance')
 
-    return inst
+    name = f'SMA-{period}'
+
+    return inst, name
 
 
 def create_exponential_moving_average(args):
@@ -60,7 +63,9 @@ def create_exponential_moving_average(args):
     if not inst:
         raise RuntimeError('Failed to create ExponentialMovingAverage instance')
 
-    return inst
+    name = f'EMA-{period}'
+
+    return inst, name
 
 
 def create_relative_strength_index(args):
@@ -77,7 +82,9 @@ def create_relative_strength_index(args):
     if not inst:
         raise RuntimeError('Failed to create RelativeStrengthIndex instance')
 
-    return inst
+    name = f'RSI-{period}'
+
+    return inst, name
 
 
 class Indicator:
@@ -85,15 +92,15 @@ class Indicator:
         self._libta = libta
 
         if indicator_type == 'SimpleMovingAverage':
-            self._inst = create_simple_moving_average(kwargs)
+            self._inst, self._name = create_simple_moving_average(kwargs)
         elif indicator_type == 'ExponentialMovingAverage':
-            self._inst = create_exponential_moving_average(kwargs)
+            self._inst, self._name = create_exponential_moving_average(kwargs)
         elif indicator_type == 'RelativeStrengthIndex':
-            self._inst = create_relative_strength_index(kwargs)
+            self._inst, self._name = create_relative_strength_index(kwargs)
         else:
             raise RuntimeError(f'Unknown indicator type: {indicator_type}')
 
-    def eval(self, value: float) -> typing.Optional[float]:
+    def _eval_iteration(self, value: float):
         out = ctypes.c_double(0.0)
         res = libta.eval_indicator(self._inst, ctypes.c_double(value), ctypes.byref(out))
 
@@ -105,6 +112,16 @@ class Indicator:
             raise RuntimeError('Error during indicator evaluation')
         else:
             RuntimeError(f'Unexpected evaluation return code: {res}')
+
+        return out
+
+    def eval(self, market_data: pd.DataFrame) -> pd.Series:
+        buffer = []
+
+        for close_price in market_data.c.values:
+            buffer.append(self._eval_iteration(close_price))
+
+        return pd.Series(data=buffer, name=self._name)
 
     def __del__(self):
         self._libta.destroy_indicator(self._inst)
