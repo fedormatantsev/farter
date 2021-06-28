@@ -1,4 +1,5 @@
 mod exponential_moving_average;
+mod moving_average_convergence_divergence;
 mod relative_strength_index;
 mod simple_moving_average;
 

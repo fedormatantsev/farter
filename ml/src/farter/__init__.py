@@ -1,3 +1,5 @@
 from .model import ModelConfig
 from .acquisition import CandleDataFetcher
 from .indicator_processing import calculate_indicators
+from .target_strategy import calculate_target
+from .training import train_model
