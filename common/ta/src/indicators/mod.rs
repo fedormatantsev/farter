@@ -8,5 +8,6 @@ pub trait Eval {
 }
 
 pub use exponential_moving_average::ExponentialMovingAverage;
+pub use moving_average_convergence_divergence::MovingAverageConvergenceDivergence;
 pub use relative_strength_index::RelativeStrengthIndex;
 pub use simple_moving_average::SimpleMovingAverage;

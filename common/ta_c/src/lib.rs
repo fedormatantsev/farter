@@ -1,10 +1,14 @@
 use std::ffi::c_void;
-use ta::indicators::{Eval, ExponentialMovingAverage, RelativeStrengthIndex, SimpleMovingAverage};
+use ta::indicators::{
+    Eval, ExponentialMovingAverage, MovingAverageConvergenceDivergence, RelativeStrengthIndex,
+    SimpleMovingAverage,
+};
 
 pub enum Indicator {
     SimpleMovingAverage(SimpleMovingAverage),
     ExponentialMovingAverage(ExponentialMovingAverage),
     RelativeStrengthIndex(RelativeStrengthIndex),
+    MovingAverageConvergenceDivergence(MovingAverageConvergenceDivergence),
 }
 
 impl Eval for Indicator {
@@ -13,6 +17,7 @@ impl Eval for Indicator {
             Indicator::SimpleMovingAverage(sma) => sma.eval(value),
             Indicator::ExponentialMovingAverage(ema) => ema.eval(value),
             Indicator::RelativeStrengthIndex(rsi) => rsi.eval(value),
+            Indicator::MovingAverageConvergenceDivergence(macd) => macd.eval(value),
         }
     }
 }
@@ -47,6 +52,22 @@ pub extern "C" fn create_relative_strength_index(period: usize) -> *mut c_void {
         Err(_) => std::ptr::null_mut(),
         Ok(rsi) => {
             let indicator = Box::new(Indicator::RelativeStrengthIndex(rsi));
+            let res = Box::leak(indicator);
+            res as *mut _ as *mut c_void
+        }
+    }
+}
+
+#[no_mangle]
+pub extern "C" fn create_moving_average_convergence_divergence(
+    short_period: usize,
+    long_period: usize,
+    signal_period: usize,
+) -> *mut c_void {
+    match MovingAverageConvergenceDivergence::new(short_period, long_period, signal_period) {
+        Err(_) => std::ptr::null_mut(),
+        Ok(macd) => {
+            let indicator = Box::new(Indicator::MovingAverageConvergenceDivergence(macd));
             let res = Box::leak(indicator);
             res as *mut _ as *mut c_void
         }
