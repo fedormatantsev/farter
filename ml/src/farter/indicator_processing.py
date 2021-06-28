@@ -3,12 +3,14 @@ import pandas as pd
 import pyta
 import dataclasses
 
-from farter.model import ModelConfig, RelativeStrengthIndexParams
+from farter.model import ModelConfig, RelativeStrengthIndexParams, MovingAverageConvergenceDivergenceParams
 
 
 def make_indicator(indicator_params):
     if isinstance(indicator_params, RelativeStrengthIndexParams):
         indicator_type = 'RelativeStrengthIndex'
+    elif isinstance(indicator_params, MovingAverageConvergenceDivergenceParams):
+        indicator_type = 'MovingAverageConvergenceDivergence'
     else:
         raise RuntimeError(f'Unknown indicator type: {indicator_params}')
 

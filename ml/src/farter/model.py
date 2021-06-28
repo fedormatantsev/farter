@@ -59,11 +59,32 @@ class RelativeStrengthIndexParams:
         sha.update(self.period)
 
 
+@dataclasses.dataclass
+class MovingAverageConvergenceDivergenceParams:
+    short_period: int
+    long_period: int
+    signal_period: int
+
+    def __hash__(self):
+        # тэг нужен, чтобы различать параметры разных индикаторов
+        return hash(('MovingAverageConvergenceDivergence', self.short_period, self.long_period, self.signal_period))
+
+    def hash(self, sha):
+        sha.update(b'MovingAverageConvergenceDivergence')
+        sha.update(self.short_period)
+        sha.update(self.long_period)
+        sha.update(self.signal_period)
+
+
 def make_indicator_params(params_dict: typing.Dict):
     indicator_type = params_dict['type'].lower()
 
     if indicator_type == 'rsi':
         return RelativeStrengthIndexParams(period=params_dict['period'])
+    if indicator_type == 'macd':
+        return MovingAverageConvergenceDivergenceParams(short_period=params_dict['short_period'],
+                                                        long_period=params_dict['long_period'],
+                                                        signal_period=params_dict['signal_period'])
     else:
         raise RuntimeError(f'Unknown indicator type {indicator_type}')
 

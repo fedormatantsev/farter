@@ -3,6 +3,12 @@ x_definition:
     indicator:
       type: RSI
       period: 14
+  - ticker: NVDA
+    indicator:
+      type: MACD
+      short_period: 3
+      long_period: 8
+      signal_period: 5
 
 y_definition:
   ticker: NVDA

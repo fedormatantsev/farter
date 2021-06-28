@@ -18,6 +18,9 @@ libta.create_exponential_moving_average.restype = ctypes.c_void_p
 libta.create_relative_strength_index.argtypes = [ctypes.c_uint64]
 libta.create_relative_strength_index.restype = ctypes.c_void_p
 
+libta.create_moving_average_convergence_divergence.argtypes = [ctypes.c_uint64, ctypes.c_uint64, ctypes.c_uint64]
+libta.create_moving_average_convergence_divergence.restype = ctypes.c_void_p
+
 libta.eval_indicator.argtypes = [ctypes.c_void_p, ctypes.c_double, ctypes.POINTER(ctypes.c_double)]
 libta.eval_indicator.restype = ctypes.c_int
 
@@ -87,6 +90,32 @@ def create_relative_strength_index(args):
     return inst, name
 
 
+def create_moving_average_convergence_divergence(args):
+    for arg in ['short_period', 'long_period', 'signal_period']:
+        if arg not in args:
+            raise RuntimeError('MovingAverageConvergenceDivergence requires period parameter')
+
+    short_period = args['short_period']
+    long_period = args['long_period']
+    signal_period = args['signal_period']
+
+    if not isinstance(short_period, int):
+        raise RuntimeError(f'MovingAverageConvergenceDivergence requires short_period parameter of type int')
+    if not isinstance(long_period, int):
+        raise RuntimeError(f'MovingAverageConvergenceDivergence requires long_period parameter of type int')
+    if not isinstance(signal_period, int):
+        raise RuntimeError(f'MovingAverageConvergenceDivergence requires signal_period parameter of type int')
+
+    inst = libta.create_moving_average_convergence_divergence(short_period, long_period, signal_period)
+
+    if not inst:
+        raise RuntimeError('Failed to create MovingAverageConvergenceDivergence instance')
+
+    name = f'MACD-{short_period}-{long_period}-{signal_period}'
+
+    return inst, name
+
+
 class Indicator:
     def __init__(self, indicator_type: str, **kwargs):
         self._libta = libta
@@ -97,6 +126,8 @@ class Indicator:
             self._inst, self._name = create_exponential_moving_average(kwargs)
         elif indicator_type == 'RelativeStrengthIndex':
             self._inst, self._name = create_relative_strength_index(kwargs)
+        elif indicator_type == 'MovingAverageConvergenceDivergence':
+            self._inst, self._name = create_moving_average_convergence_divergence(kwargs)
         else:
             raise RuntimeError(f'Unknown indicator type: {indicator_type}')
 
