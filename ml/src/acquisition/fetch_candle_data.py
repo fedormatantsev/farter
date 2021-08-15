@@ -34,7 +34,8 @@ def get_figi_from_ticker(client: AuthenticatedClient, ticker: str,) -> str:
     return response.parsed.payload.instruments[0].figi
 
 
-def get_cached_file_path(figi: str, first_date: datetime.date, last_date: datetime.date) -> os.PathLike:
+def get_cached_file_path(ticker: str, figi: str, first_date: datetime.date,
+                         last_date: datetime.date) -> os.PathLike:
     sha = hashlib.sha256()
 
     for val in [figi, first_date.isoformat(), last_date.isoformat()]:
@@ -43,13 +44,14 @@ def get_cached_file_path(figi: str, first_date: datetime.date, last_date: dateti
     file_name = f'{sha.hexdigest()}.yaml'
     script_path = os.path.dirname(os.path.abspath(__file__))
     csv_path = os.path.join(script_path, os.pardir,
-                            os.pardir, 'data', 'raw', file_name)
+                            os.pardir, 'data', 'raw', 'ticker', file_name)
 
     return csv_path
 
 
-def get_cached_candle_data(figi: str, first_date: datetime.date, last_date: datetime.date) -> typing.Optional[pd.DataFrame]:
-    csv_path = get_cached_file_path(figi, first_date, last_date)
+def get_cached_candle_data(ticker: str, figi: str, first_date: datetime.date,
+                           last_date: datetime.date) -> typing.Optional[pd.DataFrame]:
+    csv_path = get_cached_file_path(ticker, figi, first_date, last_date)
 
     if not os.path.exists(csv_path):
         return None
@@ -60,12 +62,14 @@ def get_cached_candle_data(figi: str, first_date: datetime.date, last_date: date
     return df
 
 
-def save_candle_date(figi: str, first_date: datetime.date, last_date: datetime.date, df: pd.DataFrame):
-    csv_path = get_cached_file_path(figi, first_date, last_date)
+def save_candle_data(ticker: str, figi: str, first_date: datetime.date,
+                     last_date: datetime.date, df: pd.DataFrame):
+    csv_path = get_cached_file_path(ticker, figi, first_date, last_date)
     df.to_csv(csv_path, index=False)
 
 
-def download_candle_data(client: AuthenticatedClient, figi: str, first_date: datetime.date, last_date: datetime.date) -> pd.DataFrame:
+def download_candle_data(client: AuthenticatedClient, figi: str,
+                         first_date: datetime.date, last_date: datetime.date) -> pd.DataFrame:
     h = []
     l = []
     o = []
@@ -97,7 +101,8 @@ def download_candle_data(client: AuthenticatedClient, figi: str, first_date: dat
                 f'Failed to get candles data for time range {from_} {to}: {response.parsed.payload.message}')
 
         for candle in response.parsed.payload.candles:
-            for src, dst in zip([candle.h, candle.l, candle.o, candle.c, candle.v, candle.time], [h, l, o, c, v, t]):
+            for src, dst in zip(
+                    [candle.h, candle.l, candle.o, candle.c, candle.v, candle.time], [h, l, o, c, v, t]):
                 dst.append(src)
 
         progress_bar.progress = to.toordinal() - first_date.toordinal()
@@ -113,18 +118,19 @@ def download_candle_data(client: AuthenticatedClient, figi: str, first_date: dat
     })
 
 
-def fetch_candle_data(ticker: str, first_date: datetime.date, last_date: datetime.date) -> pd.DataFrame:
+def fetch_candle_data(ticker: str, first_date: datetime.date,
+                      last_date: datetime.date, figi: str = None) -> pd.DataFrame:
     client = AuthenticatedClient(
         base_url=SANDBOX_URL, token=SANDBOX_AUTH_TOKEN)
     register_sandbox_account(client)
 
-    figi = get_figi_from_ticker(client, ticker)
+    figi = figi or get_figi_from_ticker(client, ticker)
 
-    df = get_cached_candle_data(figi, first_date, last_date)
+    df = get_cached_candle_data(ticker, figi, first_date, last_date)
     if df is not None:
         return df
-    
+
     df = download_candle_data(client, figi, first_date, last_date)
-    save_candle_date(figi, first_date, last_date, df)
+    save_candle_data(ticker, figi, first_date, last_date, df)
 
     return df

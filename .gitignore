@@ -2,3 +2,4 @@
 /intermediate
 
 *.pyc
+*.DS_Store

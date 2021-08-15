@@ -1,6 +1,13 @@
 {
     "python.pythonPath": ".venv/bin/python",
     "python.analysis.extraPaths": [
-        "./intermediate"
+        "${workspaceFolder}/intermediate",
+        "${workspaceFolder}/ml/src"
+    ],
+    "python.autoComplete.extraPaths": [
+        "${workspaceFolder}/ml/src"
+    ],
+    "python.formatting.autopep8Args": [
+        "--aggressive"
     ],
 }
